@@ -4,26 +4,41 @@
 sequenceDiagram
     participant GoogleSheets as Google Sheets
     participant Scheduler as Scheduler Trigger
-    participant API as Research API (Perplexity/Tavily)
-    participant AI as AI Content Generator
-    participant HTML as HTML Formatter
+    participant AIResearch as Research AI (Perplexity/Tavily)
+    participant AIContent as Content Writer (4.O MINI)
+    participant AITitle as Title AI (03-MINI)
+    participant AIImage as Image AI (DALL-E)
+    participant SEO as SEO AI (4.O MINI)
+    participant HTML as HTML
 
-    Scheduler->>Scheduler: Trigger Workflow
+    Scheduler->>Scheduler: Trigger workflow at intervals
     Scheduler->>GoogleSheets: Fetch first row with status 'ready'
     
-    alt Row Found
-        Scheduler->>API: Call Research API (based on Content Subject)
-        API-->>API: Return Research Insights
-        
-        API->>AI: Generate Content with Prompt
-        AI-->>AI: Return Generated Content
-        
-        AI->>HTML: Convert to HTML
-        HTML-->>HTML: Return Formatted HTML
-        
-        HTML->>GoogleSheets: Update column with generated HTML content, Update Success (Status -> "Completed")
-    else No Row Found
-        Scheduler-->>Scheduler: Wait for Next Trigger
-    end
+    Scheduler->>AIResearch: Call Research AI (based on Content Subject)
+    AIResearch-->>AIResearch: Return Research Insights
+
+    AIResearch->>AIContent: Generate Content with Prompt
+    AIContent-->>AIContent: Return content
+    
+    AIContent->>AITitle: Generate title
+    AITitle-->>AITitle: Return SEO-optimized title
+    
+    AIContent->>AIImage: Generate image Content
+    AIImage-->>AIImage: Return image URL
+    
+    AIContent->>SEO: Generate meta description
+    AITitle->>SEO: Generate meta title
+    SEO-->>SEO: Return SEO metadata
+
+    AITitle->>HTML: Convert title to HTML
+    AIContent->>HTML: Convert Content to HTML
+    AIImage->>HTML: Embed Image in HTML
+    SEO->>HTML: Convert Metadata to HTML
+    HTML-->>HTML: Return Formatted HTML
+    
+    HTML->>GoogleSheets: Update sheet with post details    
+    HTML-->>Scheduler: Workflow Complete!
+    Scheduler-->>Scheduler: Wait for Next Trigger
+
 
 ```
